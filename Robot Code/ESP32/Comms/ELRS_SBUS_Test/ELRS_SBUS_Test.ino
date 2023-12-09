@@ -1,7 +1,4 @@
 #include <sbus.h>
-#include <HardwareSerial.h>
-
-#define FAILSAFE_TIMEOUT 1000  // allowable time between connection pings before a failsafe is triggered
 
 /* SBUS object, reading SBUS */
 bfs::SbusRx sbus_rx(&Serial2, 19, 23, true);
@@ -27,8 +24,6 @@ void loop() {
     }
   }
 
-  
-
   for (int i = 0; i < data.NUM_CH; i++) {
     Serial.print("CH");
     Serial.print(i + 1);
@@ -37,5 +32,4 @@ void loop() {
     Serial.print(" ");
   }
   Serial.println();
-  
 }
