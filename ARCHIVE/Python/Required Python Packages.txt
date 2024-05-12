@@ -1,0 +1,5 @@
+Xinput
+FilterPy
+serial
+keyboard
+opencv-contrib-python
