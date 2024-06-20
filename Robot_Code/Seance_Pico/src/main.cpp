@@ -17,6 +17,7 @@ void setup()
 
 void loop()
 {
-   Comms::read();
-   ESC::write_read();
+   Comms::read(); // read reference signals (r) and external data from the CRSF receiver
+   Controls::calc_u(); // calculate plant inputs (u) based on reference signals and internal/external sensor data
+   ESC::write_read(); // write plant inputs (u) to the ESC's and read the telemetry
 }

@@ -15,19 +15,17 @@ bidirectional dshot to get RPM and voltage/current telemetry
 
 namespace ESC
 {
-    // ESC signal pin config
-    constexpr int drv1Pin = 26;
-    constexpr int drv2Pin = 27;
-    constexpr int drv3Pin = 28;
-    constexpr int drv4Pin = 29;
-    constexpr int wpnPin = 2;
 
-    // pico-dshot Telemetry objects
-    extern DShot::Telemetry drv1Telem; // Telemetry struct for drive motor 1
-    extern DShot::Telemetry drv2Telem; // Telemetry struct for drive motor 2
-    extern DShot::Telemetry drv3Telem; // Telemetry struct for drive motor 3
-    extern DShot::Telemetry drv4Telem; // Telemetry struct for drive motor 4
-    extern DShot::Telemetry wpnTelem;  // Telemetry struct for weapon motor
+    class esc
+    {
+    public:
+        const char* name = "";
+        DShot::ESC dshot; // dshot ESC object to read and write directly to the ESC
+        DShot::Telemetry telem = {0}; // decoded telemetry data
+        uint64_t raw_telem; // raw telemetry data
+        esc(const char* name, uint dshot_gpio, PIO pio = pio0, uint poles = 14)
+            : dshot(dshot_gpio, pio, DSHOT_TYPE, DSHOT_SPEED, poles), name(name) {};       
+    };
 
     // Initialize DSHOT communications with the ESCs
     void init();

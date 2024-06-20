@@ -8,6 +8,8 @@
         "iosfwd": "cpp",
         "istream": "cpp",
         "limits": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "compare": "cpp",
+        "random": "cpp"
     }
 }

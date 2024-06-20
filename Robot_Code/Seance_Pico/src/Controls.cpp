@@ -4,11 +4,12 @@
 
 namespace Controls
 {
-    int drv1_u;
-    int drv2_u;
-    int drv3_u;
-    int drv4_u;
+    int u[5]; // plant inputs (control outputs) for all motors
 
-    float test = ESC::drv1Telem.rpm;
-    int test2 = Comms::xdot;
+    // calculate plant inputs based on reference signals and incoming sensor data
+    void calc_u()
+    {
+        u[5] = Comms::wpn_throttle; // forward weapon throttle value directly to the final control input
+    }
+
 }

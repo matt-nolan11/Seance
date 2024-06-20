@@ -4,65 +4,88 @@
 
 namespace ESC
 {
-    // pico-dshot ESC objects
-    DShot::ESC drv1(drv1Pin, pio0, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
-    DShot::ESC drv2(drv2Pin, pio0, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
-    DShot::ESC drv3(drv3Pin, pio0, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
-    DShot::ESC drv4(drv4Pin, pio1, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
-    DShot::ESC wpn(wpnPin, pio1, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
 
-    // pico-dshot Telemetry objects
-    DShot::Telemetry drv1Telem = {0}; // Telemetry struct for drive motor 1
-    DShot::Telemetry drv2Telem = {0}; // Telemetry struct for drive motor 2
-    DShot::Telemetry drv3Telem = {0}; // Telemetry struct for drive motor 3
-    DShot::Telemetry drv4Telem = {0}; // Telemetry struct for drive motor 4
-    DShot::Telemetry wpnTelem = {0};  // Telemetry struct for weapon motor
+    constexpr int num_motors = 5; // number of motors on the robot
+    // ESC signal pin config
+    constexpr int FR_Pin = 26; // signal pin for front right motor
+    constexpr int FL_Pin = 27; // front left
+    constexpr int BL_Pin = 28; // back left
+    constexpr int BR_Pin = 29; // back right
+    constexpr int wpn_Pin = 2; // weapon
+    // // pico-dshot ESC objects
+    // DShot::ESC drv1(drv1Pin, pio0, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
+    // DShot::ESC drv2(drv2Pin, pio0, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
+    // DShot::ESC drv3(drv3Pin, pio0, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
+    // DShot::ESC drv4(drv4Pin, pio1, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
+    // DShot::ESC wpn(wpnPin, pio1, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
 
-    // variables to store raw telemetry information
-    uint64_t drv1_raw_telem;
-    uint64_t drv2_raw_telem;
-    uint64_t drv3_raw_telem;
-    uint64_t drv4_raw_telem;
-    uint64_t wpn_raw_telem;
+    // // pico-dshot Telemetry objects
+    // DShot::Telemetry drv1Telem = {0}; // Telemetry struct for drive motor 1
+    // DShot::Telemetry drv2Telem = {0}; // Telemetry struct for drive motor 2
+    // DShot::Telemetry drv3Telem = {0}; // Telemetry struct for drive motor 3
+    // DShot::Telemetry drv4Telem = {0}; // Telemetry struct for drive motor 4
+    // DShot::Telemetry wpnTelem = {0};  // Telemetry struct for weapon motor
+
+    // // variables to store raw telemetry information
+    // uint64_t drv1_raw_telem;
+    // uint64_t drv2_raw_telem;
+    // uint64_t drv3_raw_telem;
+    // uint64_t drv4_raw_telem;
+    // uint64_t wpn_raw_telem;
+
+    // struct motor(int pin) {
+    //     DShot::ESC esc;
+    //     DShot::Telemetry telem = {0};
+    //     uint64_t raw_telem;
+    // };
+
+    // struct drive {
+    //     motor FR; // front right
+    //     motor FL; // front left
+    //     motor BL; // back left
+    //     motor BR; // back right
+    // };
+
+    esc motors[] = {
+        esc("drv1", FR_Pin, pio0, DRIVE_MOTOR_POLES),
+        esc("drv2", FL_Pin, pio0, DRIVE_MOTOR_POLES),
+        esc("drv3", BL_Pin, pio0, DRIVE_MOTOR_POLES),
+        esc("drv4", BR_Pin, pio1, DRIVE_MOTOR_POLES),
+        esc("wpn", wpn_Pin, pio1, DRIVE_MOTOR_POLES)};
 
     void init()
     {
-        drv1.init();
-        drv2.init();
-        drv3.init();
-        drv4.init();
-        wpn.init();
+        for (int i = 0; i < num_motors; i++)
+        {
+            motors[i].dshot.init();
+        }
 
         int timestamp = millis();
         while (millis() - timestamp <= 1000) // repeat for 1 second
         {
-            drv1.setStop(); // command motor stop
-            drv2.setStop();
-            drv3.setStop();
-            drv4.setStop();
-            wpn.setStop();
-            delay(1);
-            drv1.getRawTelemetry(drv1_raw_telem);
-            drv2.getRawTelemetry(drv2_raw_telem);
-            drv3.getRawTelemetry(drv3_raw_telem);
-            drv4.getRawTelemetry(drv4_raw_telem);
-            wpn.getRawTelemetry(wpn_raw_telem);
+            for (int i = 0; i < num_motors; i++)
+            {
+                motors[i].dshot.setStop();
+            }
+            delay(1); // wais 1ms to receive telemetry info
+            for (int i = 0; i < num_motors; i++)
+            {
+                motors[i].dshot.getRawTelemetry(motors[i].raw_telem);
+            }
         }
 
         timestamp = millis();
         while (millis() - timestamp <= 200) // repeat for 0.2 seconds
         {
-            drv1.setCommand(13); // enable extended telemetry
-            drv2.setCommand(13);
-            drv3.setCommand(13);
-            drv4.setCommand(13);
-            wpn.setCommand(13);
-            delay(1);
-            drv1.getRawTelemetry(drv1_raw_telem);
-            drv2.getRawTelemetry(drv2_raw_telem);
-            drv3.getRawTelemetry(drv3_raw_telem);
-            drv4.getRawTelemetry(drv4_raw_telem);
-            wpn.getRawTelemetry(wpn_raw_telem);
+            for (int i = 0; i < num_motors; i++)
+            {
+                motors[i].dshot.setCommand(13); // enable extended telemetry
+            }
+            delay(1); // wais 1ms to receive telemetry info
+            for (int i = 0; i < num_motors; i++)
+            {
+                motors[i].dshot.getRawTelemetry(motors[i].raw_telem);
+            }
         }
     }
 
@@ -108,27 +131,24 @@ namespace ESC
     void write_read()
     {
         // send dshot commands
-        drv1.setCommand(map_3d(Controls::drv1_u));
-        drv2.setCommand(map_3d(Controls::drv2_u));
-        drv3.setCommand(map_3d(Controls::drv3_u));
-        drv4.setCommand(map_3d(Controls::drv4_u));
-        wpn.setCommand(map_wpn(Comms::wpn_throttle));
+        for (int i = 0; i < num_motors; i++)
+        {
+            if (motors[i].name == "wpn")
+            {
+                motors[i].dshot.setCommand(map_wpn(Controls::u[i]));
+            }
+            else // drive motors
+            {
+                motors[i].dshot.setCommand(map_3d(Controls::u[i]));
+            }
+        }
 
-        delay(1); // wait for the PIOs to complete
+        delay(1); // wait for the PIOs to complete writing
 
-        // grab raw telemetry
-        drv1.getRawTelemetry(drv1_raw_telem);
-        drv2.getRawTelemetry(drv2_raw_telem);
-        drv3.getRawTelemetry(drv3_raw_telem);
-        drv4.getRawTelemetry(drv4_raw_telem);
-        wpn.getRawTelemetry(wpn_raw_telem);
+        for (int i=0; i<num_motors; i++) {
+            motors[i].dshot.getRawTelemetry(motors[i].raw_telem); // grab the raw telemetry
+            motors[i].dshot.decodeTelemetry(motors[i].raw_telem, motors[i].telem); // decode the raw telemetry
+        }
 
-        // decode the raw telemetry
-        drv1.decodeTelemetry(drv1_raw_telem, drv1Telem);
-        drv2.decodeTelemetry(drv2_raw_telem, drv2Telem);
-        drv3.decodeTelemetry(drv3_raw_telem, drv3Telem);
-        drv4.decodeTelemetry(drv4_raw_telem, drv4Telem);
-        wpn.decodeTelemetry(wpn_raw_telem, wpnTelem);
     }
-
 }
