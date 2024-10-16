@@ -7,24 +7,29 @@ bidirectional dshot to get RPM and voltage/current telemetry
 
 #pragma once
 
-// DSHOT Control Signal Configs
-#define DRIVE_MOTOR_POLES 14  // number of poles on the drive motors
-#define WEAPON_MOTOR_POLES 14 // number of poles on the weapon motor
-#define DSHOT_TYPE DShot::Type::Bidir
-#define DSHOT_SPEED DShot::Speed::DS600
-
-namespace ESC
+namespace Motors
 {
 
-    class esc
+    class motor
     {
+
     public:
-        const char* name = "";
-        DShot::ESC dshot; // dshot ESC object to read and write directly to the ESC
+        motor(const char *_name, unsigned int _dshot_gpio, unsigned int _poles, PIO _pio);
+
+        void dshot_begin();
+
+    private:
+        const char *name;
+        unsigned int dshot_gpio;
+        unsigned int poles;
+        PIO pio;
+        unsigned int _dshot_gpio;
+
+        DShot::ESC dshot;             // dshot ESC object to read and write directly to the ESC
         DShot::Telemetry telem = {0}; // decoded telemetry data
-        uint64_t raw_telem; // raw telemetry data
-        esc(const char* name, uint dshot_gpio, PIO pio = pio0, uint poles = 14)
-            : dshot(dshot_gpio, pio, DSHOT_TYPE, DSHOT_SPEED, poles), name(name) {};       
+        uint64_t raw_telem;           // raw telemetry data
+        
+        unsigned long timestamp;
     };
 
     // Initialize DSHOT communications with the ESCs

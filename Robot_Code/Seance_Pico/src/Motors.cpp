@@ -1,17 +1,22 @@
-#include <ESC.h>
+#include <Motors.h>
 #include <Comms.h>
 #include <Controls.h>
 
-namespace ESC
+namespace Motors
 {
+    // DSHOT Control Signal Configs
+    constexpr int DRIVE_MOTOR_POLES = 14;  // number of poles on the drive motors
+    constexpr int WEAPON_MOTOR_POLES = 14; // number of poles on the weapon motor
+    constexpr DShot::Type DSHOT_TYPE = DShot::Type::Bidir;
+    constexpr DShot::Speed DSHOT_SPEED = DShot::Speed::DS600;
 
-    constexpr int num_motors = 5; // number of motors on the robot
     // ESC signal pin config
-    constexpr int FR_Pin = 26; // signal pin for front right motor
-    constexpr int FL_Pin = 27; // front left
-    constexpr int BL_Pin = 28; // back left
-    constexpr int BR_Pin = 29; // back right
-    constexpr int wpn_Pin = 2; // weapon
+    constexpr int FR_ESC_PIN = 26; // signal pin for front right motor
+    constexpr int FL_ESC_PIN = 27; // front left
+    constexpr int BL_ESC_PIN = 28; // back left
+    constexpr int BR_ESC_PIN = 29; // back right
+    constexpr int WPN_ESC_PIN = 2; // weapon
+
     // // pico-dshot ESC objects
     // DShot::ESC drv1(drv1Pin, pio0, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
     // DShot::ESC drv2(drv2Pin, pio0, DSHOT_TYPE, DSHOT_SPEED, DRIVE_MOTOR_POLES);
@@ -46,46 +51,47 @@ namespace ESC
     //     motor BR; // back right
     // };
 
-    esc motors[] = {
-        esc("drv1", FR_Pin, pio0, DRIVE_MOTOR_POLES),
-        esc("drv2", FL_Pin, pio0, DRIVE_MOTOR_POLES),
-        esc("drv3", BL_Pin, pio0, DRIVE_MOTOR_POLES),
-        esc("drv4", BR_Pin, pio1, DRIVE_MOTOR_POLES),
-        esc("wpn", wpn_Pin, pio1, DRIVE_MOTOR_POLES)};
+    motor::motor(const char *_name, unsigned int _dshot_gpio, unsigned int _poles = 14, PIO _pio = pio0) : name(_name),
+                                                                                                           dshot_gpio(_dshot_gpio),
+                                                                                                           poles(_poles),
+                                                                                                           pio(_pio),
+                                                                                                           dshot(dshot_gpio, pio, DSHOT_TYPE, DSHOT_SPEED, poles) {}
 
-    void init()
+    void motor::dshot_begin()
     {
-        for (int i = 0; i < num_motors; i++)
+        dshot.init();
+        
+        timestamp = millis();
+        while (millis() - timestamp <= 1000)
         {
-            motors[i].dshot.init();
-        }
-
-        int timestamp = millis();
-        while (millis() - timestamp <= 1000) // repeat for 1 second
-        {
-            for (int i = 0; i < num_motors; i++)
-            {
-                motors[i].dshot.setStop();
-            }
-            delay(1); // wais 1ms to receive telemetry info
-            for (int i = 0; i < num_motors; i++)
-            {
-                motors[i].dshot.getRawTelemetry(motors[i].raw_telem);
-            }
+            dshot.setStop();
+            delay(1); // wait 1ms to receive telemetry info
+            dshot.getRawTelemetry(raw_telem);
         }
 
         timestamp = millis();
-        while (millis() - timestamp <= 200) // repeat for 0.2 seconds
+        while (millis() - timestamp <= 200)
         {
-            for (int i = 0; i < num_motors; i++)
-            {
-                motors[i].dshot.setCommand(13); // enable extended telemetry
-            }
-            delay(1); // wais 1ms to receive telemetry info
-            for (int i = 0; i < num_motors; i++)
-            {
-                motors[i].dshot.getRawTelemetry(motors[i].raw_telem);
-            }
+            dshot.setCommand(13); // enable extended telemetry
+            delay(1);
+            dshot.getRawTelemetry(raw_telem);
+        }
+    }
+
+    motor drive1("drive1", FR_ESC_PIN, DRIVE_MOTOR_POLES, pio0);
+    motor drive2("drive2", FL_ESC_PIN, DRIVE_MOTOR_POLES, pio0);
+    motor drive3("drive3", BL_ESC_PIN, DRIVE_MOTOR_POLES, pio0);
+    motor drive4("drive4", BR_ESC_PIN, DRIVE_MOTOR_POLES, pio0);
+
+    motor weapon("weapon", WPN_ESC_PIN, WEAPON_MOTOR_POLES, pio1);
+
+    std::vector<motor *> motors{&drive1, &drive2, &drive3, &drive4, &weapon};
+
+    void init()
+    {
+        for (auto &m : motors)
+        {
+            m->dshot_begin();
         }
     }
 
@@ -145,10 +151,10 @@ namespace ESC
 
         delay(1); // wait for the PIOs to complete writing
 
-        for (int i=0; i<num_motors; i++) {
-            motors[i].dshot.getRawTelemetry(motors[i].raw_telem); // grab the raw telemetry
+        for (int i = 0; i < num_motors; i++)
+        {
+            motors[i].dshot.getRawTelemetry(motors[i].raw_telem);                  // grab the raw telemetry
             motors[i].dshot.decodeTelemetry(motors[i].raw_telem, motors[i].telem); // decode the raw telemetry
         }
-
     }
 }

@@ -6,18 +6,18 @@ source files.
 
 #include <Comms.h>
 #include <Controls.h>
-#include <ESC.h>
+#include <Motors.h>
 
 void setup()
 {
     Serial.begin(921600); // for debugging only
     Comms::init();
-    ESC::init();
+    Motors::init();
 }
 
 void loop()
 {
    Comms::read(); // read reference signals (r) and external data from the CRSF receiver
    Controls::calc_u(); // calculate plant inputs (u) based on reference signals and internal/external sensor data
-   ESC::write_read(); // write plant inputs (u) to the ESC's and read the telemetry
+   Motors::write_read(); // write plant inputs (u) to the ESC's and read the telemetry
 }

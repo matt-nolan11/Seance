@@ -63,28 +63,6 @@ namespace Comms
         thetadot = Utilities::mapFloat(rcData->value[thetadot_channel], CRSF_RC_CHANNEL_MIN, CRSF_RC_CHANNEL_MAX, -maxThetaDot, maxThetaDot); // input angular velocity (radians/second)
         cv_theta = Utilities::mapFloat(rcData->value[cv_theta_channel], CRSF_RC_CHANNEL_MIN, CRSF_RC_CHANNEL_MAX, 0, 2 * PI);                 // robot yaw angle as measured by the computer vision (cv) system (radians)
         wpn_throttle = crsf->rcToUs(rcData->value[wpn_channel]);                                                                              // get the weapon throttle in microseconds
-
-        // Print RC channels to the Serial monitor
-        // static uint32_t lastPrint = millis(); // print timer
-
-        // if (millis() - lastPrint >= 10) // check if 10ms have passed
-        // {
-        //     lastPrint = millis(); // update print timer
-
-        //     Serial.print("RC Channels: <");
-        //     for (int i = 0; i < rcChannelCount; i++)
-        //     {
-        //         Serial.print(rcChannelNames[i]);
-        //         Serial.print(": ");
-        //         Serial.print(crsf->rcToUs(rcData->value[i]));
-
-        //         if (i < (rcChannelCount - 1))
-        //         {
-        //             Serial.print(", ");
-        //         }
-        //     }
-        //     Serial.println(">");
-        // }
     }
 
     void init()
@@ -94,7 +72,7 @@ namespace Comms
         if (crsf->begin() == true)
         {
             crsf->setRcChannelsCallback(onReceiveRcChannels);
-            rcChannelCount = rcChannelCount > crsfProtocol::RC_CHANNEL_COUNT ? crsfProtocol::RC_CHANNEL_COUNT : rcChannelCount;
+            rcChannelCount = min(rcChannelCount, crsfProtocol::RC_CHANNEL_COUNT);
         }
         else
         {
