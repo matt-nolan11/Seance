@@ -15,13 +15,11 @@ public:
     /// @brief Create a motor object and fill in the required configuration constants
     /// @param _name Name of the motor's mechanism (just for debugging)
     /// @param _dshot_gpio Microcontroller pin that the ESC is attached to
-    /// @param _bidir Whether or not the motor is bidirectional (i.e. spins in both directions)
     /// @param _gear_ratio How many times the output spins for every motor rotation
     /// @param _poles Number of poles (i.e. magnets) in the rotor (defaults to 14)
     /// @param _pio PIO block that should be used (pio0 or pio1, max 4 motors per block, defaults to pio0)
     Motor(const char *_name,
           unsigned int _dshot_gpio,
-          bool _bidir,
           float _gear_ratio,
           unsigned int _poles,
           PIO _pio);
@@ -58,7 +56,6 @@ private:
     // Motor configuration constants, initialized by the class constructor
     const char *name;
     const unsigned int dshot_gpio;
-    const bool bidir;
     const float gear_ratio;
     const unsigned int poles;
     const PIO pio;

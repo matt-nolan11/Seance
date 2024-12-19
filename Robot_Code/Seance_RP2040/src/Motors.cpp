@@ -37,12 +37,10 @@ std::vector<Motor *> Motor::getInstances()
 
 Motor::Motor(const char *_name,
              unsigned int _dshot_gpio,
-             bool _bidir,
              float _gear_ratio,
              unsigned int _poles = 14,
              PIO _pio = pio0) : name(_name),
                                 dshot_gpio(_dshot_gpio),
-                                bidir(_bidir),
                                 gear_ratio(_gear_ratio),
                                 poles(_poles),
                                 pio(_pio),
@@ -67,43 +65,27 @@ void Motor::dshotBegin()
     }
 
     timestamp = millis();
-    while (millis() - timestamp <= 200)
+    while (millis() - timestamp <= 500)
     {
         dshot.setCommand(13); // enable extended telemetry
         delay(1);
         dshot.getRawTelemetry(raw_telem);
     }
 
-    dshot.setCommand(1); // DSHOT_CMD_BEEP1
+    dshot.setCommand(3); // DSHOT_CMD_BEEP3
     delay(300);
 }
 
 void Motor::setDuty_U(int input_u)
 {
     u = constrain(input_u, -Controls::U_SCALE, Controls::U_SCALE);
-
-    if (bidir)
-    {
-        dshot_value = Utilities::map_bidir(u);
-    }
-    else
-    {
-        dshot_value = Utilities::map_1d(u);
-    }
+    dshot_value = Utilities::map_bidir(u);
 }
 
 void Motor::setDuty_uS(int input_uS)
 {
     uS = constrain(input_uS, 1000, 2000);
-
-    if (bidir)
-    {
-        dshot_value = Utilities::map_uS_bidir(uS);
-    }
-    else
-    {
-        dshot_value = Utilities::map_uS_1d(uS);
-    }
+    dshot_value = Utilities::map_uS_bidir(uS);
 }
 
 void Motor::sendDshot()
@@ -120,11 +102,11 @@ void Motor::readTelem()
 namespace ESC
 {
 
-    Motor drive1("drive1", FR_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
-    Motor drive2("drive2", FL_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
-    Motor drive3("drive3", BL_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
-    Motor drive4("drive4", BR_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
-    Motor weapon("weapon", WPN_ESC_PIN, false, 1, WEAPON_MOTOR_POLES, pio1);
+    Motor drive1("drive1", FR_ESC_PIN, 1, DRIVE_MOTOR_POLES, pio0);
+    Motor drive2("drive2", FL_ESC_PIN, 1, DRIVE_MOTOR_POLES, pio0);
+    Motor drive3("drive3", BL_ESC_PIN, 1, DRIVE_MOTOR_POLES, pio0);
+    Motor drive4("drive4", BR_ESC_PIN, 1, DRIVE_MOTOR_POLES, pio0);
+    Motor weapon("weapon", WPN_ESC_PIN, 1, WEAPON_MOTOR_POLES, pio1);
 
     std::vector<Motor *> drivetrain = {&drive1, &drive2, &drive3, &drive4};
 
