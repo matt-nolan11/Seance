@@ -29,15 +29,18 @@ public:
     /// @brief Initializes bidirectional dshot communication with the ESC
     void dshotBegin();
 
-    /// @brief Sets the PWM duty cycle of the motor using the bidirectional plant input scale, and sends it to the motor
+    /// @brief Sets the PWM duty cycle of the motor using the bidirectional plant input scale
     /// @brief Also reads the ESC's telemetry data into the telem object
     /// @param input_u Motor duty cycle on the semi-arbitrary plant input scale (-U_SCALE to U_SCALE)
     void setDuty_U(int input_u);
 
-    /// @brief Sets the PWM duty cycle of the motor using the microsecond scale, and sends it to the motor
+    /// @brief Sets the PWM duty cycle of the motor using the microsecond scale
     /// @brief Also reads the ESC's telemetry data into the telem object
     /// @param input_uS Motor duty cycle on the RC microseconds scale (1000 to 2000 microseconds)
     void setDuty_uS(int input_uS);
+
+    /// @brief Sends the internally stored dshot_value to the ESC
+    void sendDshot();
 
     /// @brief Reads the bidirectional DShot telemetry from the ESC (should be called 1ms after every set_duty command!)
     void readTelem();
@@ -76,8 +79,17 @@ private:
     unsigned long timestamp; // can use this for instance-specific timing
 };
 
-namespace Motors
+namespace ESC
 {
-    // Initialize DSHOT communications with the ESCs
+    /// @brief Initialize DSHOT communications with the ESCs
     void init();
+
+    /// @brief Writes the calculated dshot_values to the ESCs
+    void write_read();
+
+    extern Motor drive1;
+    extern Motor drive2;
+    extern Motor drive3;
+    extern Motor drive4;
+    extern Motor weapon;
 }

@@ -51,7 +51,7 @@ Motor::Motor(const char *_name,
 {
     num_motors += 1;
     instances.push_back(this);
-    rpm_controller.SetMode(QuickPID::Control::manual); // pid speed controller is initially off
+    rpm_controller.SetMode(QuickPID::Control::manual); // pid speed controller is initially turned off
 }
 
 void Motor::dshotBegin()
@@ -90,13 +90,6 @@ void Motor::setDuty_U(int input_u)
     {
         dshot_value = Utilities::map_1d(u);
     }
-
-    dshot.setCommand(dshot_value);
-
-    delay(1);
-
-    dshot.getRawTelemetry(raw_telem);        // grab raw ESC telemetry
-    dshot.decodeTelemetry(raw_telem, telem); // decode raw telemetry and populate the telem struct with it
 }
 
 void Motor::setDuty_uS(int input_uS)
@@ -111,7 +104,10 @@ void Motor::setDuty_uS(int input_uS)
     {
         dshot_value = Utilities::map_uS_1d(uS);
     }
+}
 
+void Motor::sendDshot()
+{
     dshot.setCommand(dshot_value);
 }
 
@@ -121,19 +117,35 @@ void Motor::readTelem()
     dshot.decodeTelemetry(raw_telem, telem); // decode raw telemetry and populate the telem struct with it
 }
 
-Motor drive1("drive1", FR_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
-Motor drive2("drive2", FL_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
-Motor drive3("drive3", BL_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
-Motor drive4("drive4", BR_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
-Motor weapon("weapon", WPN_ESC_PIN, false, 1, WEAPON_MOTOR_POLES, pio1);
-
-namespace Motors
+namespace ESC
 {
+
+    Motor drive1("drive1", FR_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
+    Motor drive2("drive2", FL_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
+    Motor drive3("drive3", BL_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
+    Motor drive4("drive4", BR_ESC_PIN, true, 1, DRIVE_MOTOR_POLES, pio0);
+    Motor weapon("weapon", WPN_ESC_PIN, false, 1, WEAPON_MOTOR_POLES, pio1);
+
+    std::vector<Motor *> drivetrain = {&drive1, &drive2, &drive3, &drive4};
+
     void init()
     {
         for (auto &m : Motor::getInstances())
         {
             m->dshotBegin();
+        }
+    }
+
+    void write_read()
+    {
+        for (auto &m : Motor::getInstances())
+        {
+            m->sendDshot();
+        }
+        delay(1);
+        for (auto &m : Motor::getInstances())
+        {
+            m->readTelem();
         }
     }
 }

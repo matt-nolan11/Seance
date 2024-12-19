@@ -12,10 +12,11 @@ void setup()
 {
     Serial.begin(921600); // for debugging only
     Comms::init();
-    Motors::init();
+    ESC::init();
 }
 
 void loop()
 {
-   Comms::read(); // read reference signals (r) and external data from the CRSF receiver 
+    Comms::read();
+    ESC::write_read();
 }
