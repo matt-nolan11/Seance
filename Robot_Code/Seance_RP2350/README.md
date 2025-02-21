@@ -1,5 +1,5 @@
 # RP2350 Robot Code
-This Platformio project contains on-robot firmware that is designed specifically around the capabilities and peripherals of the RP2350 MCU. Specifically, it takes advantage of the 12 PIO state machines (compared to the 8 available on the RP2040) to enable the necessary UART / DSHOT communication. It uses Earle Philhower's Arduino-Pico core.
+This PlatformIO project contains on-robot firmware that is designed specifically around the capabilities and peripherals of the RP2350 MCU. Specifically, it takes advantage of the 12 PIO state machines (compared to the 8 available on the RP2040) to enable the necessary UART / DSHOT communication. It uses Earle Philhower's Arduino-Pico core.
 ## MCU Resources
 - [RP2350 Getting Started / Pinouts](https://wiki.seeedstudio.com/getting-started-xiao-rp2350/)
 - [Arduino-Pico with PlatformIO](https://arduino-pico.readthedocs.io/en/latest/platformio.html)
