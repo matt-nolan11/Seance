@@ -39,9 +39,9 @@ void loop()
     // Note that these print statements will take additional time that slows the loop down, but the dt calculation does not consider this additional time
     // Thus, the printed loop time should be accurate for the scenario when DEBUG_MODE is disabled
 
-    // Serial.printf("Loop time (microseconds): %d\n", dt);
+    Serial.printf("Loop time (microseconds): %d\n", dt);
     // Serial.printf("Clock Speed (MHz): %.2f\n", clock_get_hz(clk_sys) / 1000000.0);
     // Serial.printf("millis() = %d\n", millis());
-    Serial.printf("MCU Temperature (degC): %.2f\n", analogReadTemp());
+    // Serial.printf("MCU Temperature (degC): %.2f\n", analogReadTemp());
 #endif
 }

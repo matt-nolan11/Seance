@@ -18,7 +18,7 @@ Full autonomy is theoretically possible in the future, but for now I intend to k
 
 This project will be implemented on small-scale combat robots initially, using either a 3lb "Beetleweight" or a 12lb "Hobbyweight." The holonomic drive will be achieved using either an X-drive or a swerve drive. The first prototypes of this system used an X-drive, but the relatively low traction was problematic in combat.
 
-## The Code
+## Project Structure
 This repository is divided into two main sections:
 - Robot_Code
   - Runs on a microcontroller inside the robot, interfacing with the RC receiver, motor controllers, and sensors
